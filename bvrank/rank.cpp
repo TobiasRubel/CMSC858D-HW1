@@ -1,3 +1,4 @@
+#include <sdsl/int_vector.hpp>
 #include <sdsl/vectors.hpp>
 #include <string>
 #include <vector>
@@ -22,8 +23,12 @@ public:
 
 private:
     sdsl::bit_vector * B;
-    std::vector<uint64_t> Rs;
-    std::vector<uint64_t> Rb;
+    sdsl::int_vector<> Rs;
+    sdsl::int_vector<> Rb;
+    uint64_t Rs_width;
+    uint64_t Rb_width;
+    uint64_t Rs_blocksize;
+    uint64_t Rb_blocksize;
 
 };
 
@@ -35,9 +40,14 @@ rank_support::rank_support(sdsl::bit_vector * b) {
     //    B[i] = b[i];
     //}
     B = b;
+    Rs_blocksize = (log2(B->size())/2);
+    Rb_blocksize = (pow(log2(B->size()),2)/2);
+    Rs_width = (log2(B->size())/2)+64;
+    Rb_width = (log2((pow(log2(B->size()),2)/2)))+64;
 
-    Rs = std::vector<uint64_t> (B->size()/(pow(log2(B->size()),2)/2),0);
-    Rb = std::vector<uint64_t> (B->size()/(log2(B->size())/2),0);
+    Rs = sdsl::int_vector<0> (B->size()/(pow(log2(B->size()),2)/2),0,Rs_width);
+    Rb = sdsl::int_vector<0> (B->size()/(log2(B->size())/2),0,Rb_width);
+    std::cout << Rs.size() << std::endl;
 
     int prior_Rs = 0;
     int prior_Rb = 0;
@@ -45,15 +55,19 @@ rank_support::rank_support(sdsl::bit_vector * b) {
     for (int i = 0; i < B->size(); i++) {
         int Rb_index = i/(log2(B->size())/2);
         int Rs_index = (i/(pow(log2(B->size()),2)/2));
+        std::cout << Rs_index << std::endl;
         if ((*B)[i]) {
-            Rs[Rs_index+1] ++;
-            Rb[Rb_index+1] ++;
+            //print_Rs();
+            Rs[Rs_index+1] = Rs[Rs_index+1] + 1 ;
+            Rb[Rb_index+1] = Rb[Rb_index+1] + 1;
+            //print_Rs();
         }
         if (i == 0 || Rs_index != prior_Rs) {
            Rb[Rb_index] = 0;
+
         } else if (Rb_index != prior_Rb) {
 
-            Rb[Rb_index] += Rb[prior_Rb];
+            Rb[Rb_index] =Rb[Rb_index] + Rb[prior_Rb];
         }
         prior_Rs = Rs_index;
         prior_Rb = Rb_index;
@@ -106,7 +120,7 @@ uint64_t rank_support::rank1(uint64_t i) {
 }
 
 uint64_t rank_support::overhead() {
-    return 8*sizeof(uint64_t) * (Rs.size() + Rb.size());
+    return (Rs.bit_size() + Rb.bit_size());
 
 
 }
@@ -118,7 +132,7 @@ void save(std::string& fname) {
 
 rank_support rank_support::load(std::string& fname) {
     std::cout << Rb.size() << std::endl;
-
+    return *this;
 
 }
 

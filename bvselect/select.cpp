@@ -6,7 +6,6 @@
 #include <bitset>
 #include <cstdint>
 #include <iostream>
-#include <../bvrank/rank.cpp>
 
 
 
