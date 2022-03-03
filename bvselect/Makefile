@@ -1,11 +1,11 @@
-all: rank
+all: select
 
 CXX = g++
 CXXFLAGS = -std=c++20 -O2 -I ~/include -L ~/lib 
 EXTRAS = -lsdsl -ldivsufsort -ldivsufsort64
 
-rank: rank.cpp
-	$(CXX) $(CXXFLAGS) -o bvrank $< $(EXTRAS)
+select: select.cpp
+	$(CXX) $(CXXFLAGS) -o bvselect $< $(EXTRAS)
 
 clean:
-	rm -f bvrank.o bvrank
+	rm -f bvselect.o bvselect

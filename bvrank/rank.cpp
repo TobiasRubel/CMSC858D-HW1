@@ -5,6 +5,7 @@
 #include <bit>
 #include <bitset>
 #include <cstdint>
+#include <iostream>
 
 class rank_support {
 public:
@@ -67,7 +68,7 @@ rank_support::~rank_support() {
 
 void rank_support::print_B() { 
     for (int i = 0; i < B->size(); i++) {
-        std::cout << B[i] << " ";
+        std::cout << (*B)[i] << " ";
     }
     std::cout << std::endl;
 }
@@ -87,19 +88,25 @@ void rank_support::print_Rb() {
 }
 
 uint64_t rank_support::rank1(uint64_t i) {
+   uint64_t Rb_block_size = (log2(B->size())/2);
    int Rb_index = i/(log2(B->size())/2);
    int Rs_index = i/(pow(log2(B->size()),2)/2);
 
-   //testing bit magic 
-   auto j = sdsl::bits::cnt(*B);
-   //auto j = B >> (B->size()-i));
-   std::cout << j << std::endl;
-   return Rs[Rs_index] + Rb[Rb_index] ;
+   int i_Rb_block = Rb_index * (log2(B->size())/2);
+
+   print_B();
+   //we want to get the machine word starting at the beginning of i's Rb_index
+   uint64_t j = B->get_int(i_Rb_block);
+   //std::cout << std::bitset<64>(j) << std::endl;
+   j = j << 64 - (Rb_block_size - 1 + (i % Rb_block_size));
+   //std::cout << std::bitset<64>(j) << std::endl;
+   return Rs[Rs_index] + Rb[Rb_index] + std::popcount(j);
  
 
 }
 
-uint64_t overhead() { 
+uint64_t rank_support::overhead() {
+    return 8*sizeof(uint64_t) * (Rs.size() + Rb.size());
 
 
 }
@@ -129,11 +136,17 @@ int main() {
     b[9] = 1;
     b[12] = 1;
     b[14] = 1;
+    //let me test something about how get_int works:
+    sdsl::bit_vector c(128,0);
+    for (int i = 64; i < 128; i++) {
+        c[i] = 1;
+    }
     rank_support rs = rank_support(&b);
     //rs.print_B();
     //rs.print_Rs();
     //rs.print_Rb();
-    std:: cout << rs.rank1(9) << std::endl;
+    std:: cout << rs.rank1(12) << std::endl;
+    std:: cout << rs.overhead() << std::endl;
     
 
 
