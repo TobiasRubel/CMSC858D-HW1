@@ -23,7 +23,7 @@ public:
     void print_Rb();
     void print_B();
 
-private:
+//private:
     sdsl::bit_vector * B;
     sdsl::int_vector<0> Rs;
     sdsl::int_vector<0> Rb;
@@ -44,8 +44,8 @@ rank_support::rank_support(sdsl::bit_vector * b) {
     B = b;
     Rs_blocksize = (log2(B->size())/2);
     Rb_blocksize = (pow(log2(B->size()),2)/2);
-    Rs_width = (log2(B->size())/2)+1;
-    Rb_width = (log2((pow(log2(B->size()),2)/2)))+1;
+    Rs_width = (log2(B->size())/2) + (std::fmod(log2(B->size()),2) != 0)+1;
+    Rb_width = (log2((pow(log2(B->size()),2)/2)))+ + (std::fmod(log2((pow(log2(B->size()),2))),2) != 0);
 
     Rs = sdsl::int_vector<0> (B->size()/(pow(log2(B->size()),2)/2),0,Rs_width);
     Rb = sdsl::int_vector<0> (B->size()/(log2(B->size())/2),0,Rb_width);
@@ -120,7 +120,6 @@ uint64_t rank_support::rank1(uint64_t i) {
 
    int i_Rb_block = Rb_index * (log2(B->size())/2);
 
-   print_B();
    //we want to get the machine word starting at the beginning of i's Rb_index
    uint64_t j = B->get_int(i_Rb_block);
    //std::cout << std::bitset<64>(j) << std::endl;
@@ -165,37 +164,4 @@ rank_support rank_support::load(std::string& fname) {
 
 
 
-int main() {
-    sdsl::bit_vector b(17,0);
-    b[0] = 1;
-    b[3] = 1;
-    b[5] = 1;
-    b[6] = 1;
-    b[7] = 1;
-    b[9] = 1;
-    b[12] = 1;
-    b[14] = 1;
-    b[16] = 1;
-    //let me test something about how get_int works:
-    sdsl::bit_vector c(128,0);
-    for (int i = 64; i < 128; i++) {
-        c[i] = 1;
-    }
-    rank_support rs = rank_support(&b);
-    //rs.print_B();
-    //rs.print_Rs();
-    //rs.print_Rb();
-    std:: cout << rs.rank1(16) << std::endl;
-    std:: cout << rs.overhead() << std::endl;
 
-    std::string ot = "test.txt";
-    rs.save(ot);
-
-    rs.load(ot);
-    
-
-
-
-
-return 0;
-} 
