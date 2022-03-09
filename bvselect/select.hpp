@@ -80,12 +80,6 @@ select_support select_support::load(std::string& fname) {
 
 }
 
-int main() {
-
-    return 0
-
-}
-
 
 
 
