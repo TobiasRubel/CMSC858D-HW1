@@ -1,7 +1,7 @@
 # Tobias Rubel CMSC858D HW1
 
 To compile simply run `make`. The mainfile can then be run which will generate all the data used to make the report. Plotting is a little less clean, but you can see the python file in 
-the plotting directory.
+the plotting directory. See hosted code on https://github.com/TobiasRubel/CMSC858D-HW1
 
 # Organization
 
